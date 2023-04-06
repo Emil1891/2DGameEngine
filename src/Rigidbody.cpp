@@ -5,7 +5,7 @@
 #include <cmath>
 #include <unordered_map>
 
-// OBS DENNA KLASS HAR FORTFARANDE EN DEL BUGGAR. FRÄMST GÄLLANDE ELASTICITET OCH NÄR DEN ANVÄNDS TSM MED PIXELKOLLISIONER.
+// this class works well with the made game but is not ready for general purpose use 
 
 namespace engine {
 
@@ -24,11 +24,11 @@ namespace engine {
 		if (!coll)
 			return false;
 
-		const int range = 30; // i pixlar (ett bra värde testades fram)
+		const int range = 30; // i pixlar (ett bra vÃ¤rde testades fram)
 		int bottom = spr->getY() + spr->getH(); 
 		for (auto c : coll->collidingObjects) { // Kollar alla objekt som kolliderar 
 			int otherTop = c->getY();
-			if (bottom - otherTop < range)  // Om detta objekts position längst ner är inom range av den andras top, dvs den står på det andra objektet så är den grounded
+			if (bottom - otherTop < range)  // Om detta objekts position lÃ¤ngst ner Ã¤r inom range av den andras top, dvs den stÃ¥r pÃ¥ det andra objektet sÃ¥ Ã¤r den grounded
 				return true;
 		}
 		return false;
@@ -38,7 +38,7 @@ namespace engine {
 	{
 		if (!isGrounded() || isTrigger)
 			velocity.y += 0.001f * gravityMultiplier * Session::getDeltaTime();
-		else if (velocity.y > 0 && velocity.y < 0.005f)  // Om den rör sig nedåt med liten hastighet och är grounded, förhindrar jitter som kunde ske ibland 
+		else if (velocity.y > 0 && velocity.y < 0.005f)  // Om den rÃ¶r sig nedÃ¥t med liten hastighet och Ã¤r grounded, fÃ¶rhindrar jitter som kunde ske ibland 
 			velocity.y = 0;
 	}
 
@@ -47,7 +47,7 @@ namespace engine {
 		if (!frictionIsActive)
 			return;
 
-		if (std::abs(velocity.x) < 0.0001f) // Stannar figuren helt om hastigheten har blivit jätteliten
+		if (std::abs(velocity.x) < 0.0001f) // Stannar figuren helt om hastigheten har blivit jÃ¤tteliten
 			velocity.x = 0;
 		else
 			velocity.x /= 1.1f;
@@ -62,7 +62,7 @@ namespace engine {
 
 	Rigidbody::CollisionSide Rigidbody::getCollisionSide(const GameObject* other) const {
 		Sprite* spr = getSprite(); 
-		const int range = 15; // Räckvidden som objektens sidor måste ska vara från varandra för att det ska betraktas som en kollision. Testades för att få fram ett bra värde 
+		const int range = 15; // RÃ¤ckvidden som objektens sidor mÃ¥ste ska vara frÃ¥n varandra fÃ¶r att det ska betraktas som en kollision. Testades fÃ¶r att fÃ¥ fram ett bra vÃ¤rde 
 
 		// Y-led
 		int top = spr->getY();
@@ -89,7 +89,7 @@ namespace engine {
 		return CollisionSide::NONE; // Ingen kollision 
 	}
 
-	void Rigidbody::collided(GameObject* other) // Kallas från Collider-klassen när två objekt börjar kollidera 
+	void Rigidbody::collided(GameObject* other) // Kallas frÃ¥n Collider-klassen nÃ¤r tvÃ¥ objekt bÃ¶rjar kollidera 
 	{
 		if (isTrigger)
 			return;
@@ -99,13 +99,13 @@ namespace engine {
 
 		switch (getCollisionSide(other))
 		{
-		case CollisionSide::BOTTOM: // De gör samma sak så ingen break 
+		case CollisionSide::BOTTOM: // De gÃ¶r samma sak sÃ¥ ingen break 
 		case CollisionSide::TOP:
 			if (elasticityMultiplier > 0)  // Om elastisitet 
-				if (SDL_GetTicks() - timeLastBounceY < deltaTimeToStopBounce)  // För att förhindra jitter sätts velocity till 0 om figuren "studsar" fort
+				if (SDL_GetTicks() - timeLastBounceY < deltaTimeToStopBounce)  // FÃ¶r att fÃ¶rhindra jitter sÃ¤tts velocity till 0 om figuren "studsar" fort
 					velocity.y = 0;
 				else  // Annars om figuren ska studsa 
-					velocity.y *= elasticityMultiplier * -1; // Vänder håll 
+					velocity.y *= elasticityMultiplier * -1; // VÃ¤nder hÃ¥ll 
 			else // Om inte elastisitet 
 				velocity.y = 0; // Stanna figuren 
 			timeLastBounceY = SDL_GetTicks();
@@ -134,7 +134,7 @@ namespace engine {
 
 		Vector newPos(spr->getPos());
 		newPos += velocity * Session::getDeltaTime();
-		if (newPos == oldPos) // Om ingen förlyttning skett dvs velocity = 0 för x och y 
+		if (newPos == oldPos) // Om ingen fÃ¶rlyttning skett dvs velocity = 0 fÃ¶r x och y 
 			return; 
 
 		Collider* coll = spr->getComponent<Collider>();
@@ -142,14 +142,14 @@ namespace engine {
 		if (!coll || isTrigger) 
 			spr->setPos(newPos);
 		else
-			checkIfMoveIsPossible(newPos, oldPos, coll); // Om collider måste det kollas så man faktiskt kan förlytta sig och inte kolliderar med nåt i den riktning man vill röra sig 
+			checkIfMoveIsPossible(newPos, oldPos, coll); // Om collider mÃ¥ste det kollas sÃ¥ man faktiskt kan fÃ¶rlytta sig och inte kolliderar med nÃ¥t i den riktning man vill rÃ¶ra sig 
 	}
 
 	void Rigidbody::checkIfMoveIsPossible(Vector& newPos, Vector& oldPos, Collider* coll)
 	{
 		Sprite* spr = getSprite(); 
 		 
-		std::unordered_map<GameObject*, SDL_Rect> oldInterRects; // Sparar alla gamla intersect rects med tillhörande gameobject 
+		std::unordered_map<GameObject*, SDL_Rect> oldInterRects; // Sparar alla gamla intersect rects med tillhÃ¶rande gameobject 
 		for (auto obj : coll->collidingObjects) {
 			SDL_Rect rect = spr->getRect();
 			SDL_Rect otherRect = obj->getRect();
@@ -161,7 +161,7 @@ namespace engine {
 		spr->setPos(newPos); // Flyttar figuren 
 
 		std::unordered_map<GameObject*, SDL_Rect> newInterRects;
-		for (auto obj : coll->collidingObjects) { // Hämtar alla nya interrects med tillhörande gameobject 
+		for (auto obj : coll->collidingObjects) { // HÃ¤mtar alla nya interrects med tillhÃ¶rande gameobject 
 			SDL_Rect rect = spr->getRect();
 			SDL_Rect otherRect = obj->getRect();
 			SDL_Rect interRect;
@@ -169,11 +169,11 @@ namespace engine {
 			newInterRects.insert(std::make_pair(obj, interRect));
 		}
 
-		for (auto& [obj, rectBefore] : oldInterRects) { // Jämför alla gamla intersect rects med de nya
+		for (auto& [obj, rectBefore] : oldInterRects) { // JÃ¤mfÃ¶r alla gamla intersect rects med de nya
 			SDL_Rect rectAfter = newInterRects[obj];
-			if (rectBefore.h < rectAfter.h) { // Om höjden på den nya är större betyder det att man försökte röra sig mot en figur man kolliderar med och därav skulle hamna inuti den 
-				spr->setY(oldPos.y); // Flyttar då tillbaka y-pos
-				velocity.y = 0; // Och sätter hastigheten i det ledet till 0 
+			if (rectBefore.h < rectAfter.h) { // Om hÃ¶jden pÃ¥ den nya Ã¤r stÃ¶rre betyder det att man fÃ¶rsÃ¶kte rÃ¶ra sig mot en figur man kolliderar med och dÃ¤rav skulle hamna inuti den 
+				spr->setY(oldPos.y); // Flyttar dÃ¥ tillbaka y-pos
+				velocity.y = 0; // Och sÃ¤tter hastigheten i det ledet till 0 
 			}
 			if (rectBefore.w < rectAfter.w) { // Samma som ovan fast bredd/x-pos 
 				spr->setX(oldPos.x);
